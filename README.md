@@ -47,12 +47,6 @@ export DOCUGENIUS_BASE_URL="https://open.docugenius.site"
 export DOCUGENIUS_APP_TOKEN="your-app-token"
 ```
 
-Use the test environment when needed:
-
-```bash
-export DOCUGENIUS_BASE_URL="https://dg-open-dev.shicaizhaopin.net"
-```
-
 ## Recommended entrypoint
 
 Use the higher-level wrapper:
