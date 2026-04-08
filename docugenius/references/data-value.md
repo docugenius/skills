@@ -24,6 +24,18 @@ When the user does not know the expected payload shape:
 3. Read `deps.fields`.
 4. Build `DataValue` to match those dependencies.
 
+## DataValue types
+
+DataValue is a union type that includes:
+
+- **MapValue** — object / record
+- **ListValue** — array / loop
+- **StringValue** — plain string
+- **NumberValue** — number with display text
+- **DateTimeValue** — timestamp with display text
+- **BoolValue** — boolean
+- **AttachmentsValue** — file attachments
+
 ## Common shapes
 
 The root is usually a map-style value:
@@ -37,14 +49,19 @@ The root is usually a map-style value:
 
 Supported render patterns mentioned in the API doc:
 
-- `LIST`
-- `MAP`
+- `LIST` — single-level list
+- `MAP` — single-level map
 - `MAP -> LIST`
-- `LIST -> MAP`
+- `LIST -> MAP` — list where each item is a map
 
 ## Primitive examples
 
-### String
+### StringValue
+
+| Field   | Type       | Description |
+| ------- | ---------- | ----------- |
+| `type`  | `"string"` |             |
+| `value` | string     |             |
 
 ```json
 {
@@ -53,31 +70,68 @@ Supported render patterns mentioned in the API doc:
 }
 ```
 
-### Number
+### NumberValue
+
+| Field         | Type       | Description    |
+| ------------- | ---------- | -------------- |
+| `type`        | `"number"` |                |
+| `displayText` | string     | formatted text |
+| `numberValue` | number     | raw value      |
 
 ```json
 {
   "type": "number",
-  "value": 123
+  "displayText": "123.00",
+  "numberValue": 123
 }
 ```
 
-### Boolean
+### DateTimeValue
+
+| Field         | Type               | Description                                 |
+| ------------- | ------------------ | ------------------------------------------- |
+| `type`        | `"datetime"`       |                                             |
+| `displayText` | string             | formatted text                              |
+| `timestamp`   | number &#124; null | raw value in milliseconds, null means empty |
+
+```json
+{
+  "type": "datetime",
+  "displayText": "2026-04-06",
+  "timestamp": 1775548800000
+}
+```
+
+### BoolValue
+
+| Field         | Type                | Description      |
+| ------------- | ------------------- | ---------------- |
+| `type`        | `"bool"`            |                  |
+| `value`       | boolean &#124; null | null means empty |
+| `displayText` | string (optional)   | display text     |
 
 ```json
 {
   "type": "bool",
-  "value": true
+  "value": true,
+  "displayText": "Yes"
 }
 ```
 
 ## Composite examples
 
-### Map value
+### MapValue
+
+| Field         | Type                        | Description           |
+| ------------- | --------------------------- | --------------------- |
+| `type`        | `"map"`                     |                       |
+| `displayText` | string (optional)           | for root node display |
+| `fields`      | Record\<string, DataValue\> |                       |
 
 ```json
 {
   "type": "map",
+  "displayText": "",
   "fields": {
     "Name": {
       "type": "string",
@@ -87,7 +141,13 @@ Supported render patterns mentioned in the API doc:
 }
 ```
 
-### List value
+### ListValue
+
+| Field         | Type              | Description                       |
+| ------------- | ----------------- | --------------------------------- |
+| `type`        | `"list"`          |                                   |
+| `displayText` | string (optional) | for direct node rendering         |
+| `items`       | MapValue\[\]      | list items, only Map is supported |
 
 ```json
 {
@@ -106,17 +166,43 @@ Supported render patterns mentioned in the API doc:
 }
 ```
 
+### AttachmentsValue
+
+| Field         | Type            | Description |
+| ------------- | --------------- | ----------- |
+| `type`        | `"attachments"` | attachment  |
+| `attachments` | Attachment\[\]  |             |
+
+#### Attachment
+
+| Field      | Type   | Required | Description       |
+| ---------- | ------ | -------- | ----------------- |
+| `url`      | string | yes      | file URL          |
+| `mime`     | string | yes      | MIME type         |
+| `fileName` | string | no       | file name         |
+| `fileSize` | number | no       | file size (bytes) |
+
+```json
+{
+  "type": "attachments",
+  "attachments": [
+    {
+      "url": "https://example.com/file.pdf",
+      "mime": "application/pdf",
+      "fileName": "report.pdf",
+      "fileSize": 102400
+    }
+  ]
+}
+```
+
 ## Example derived from template dependencies
 
 If the enabled template exposes dependencies like:
 
 ```json
 {
-  "fields": [
-    ["Name"],
-    ["Story1", "StoryName"],
-    ["Story1", "StartAt"]
-  ]
+  "fields": [["Name"], ["Story1", "StoryName"], ["Story1", "StartAt"]]
 }
 ```
 
