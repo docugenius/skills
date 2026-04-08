@@ -27,6 +27,16 @@ docs/
   DocuGenius API Documentation.md
 ```
 
+## Install
+
+Install this skill with `npx skills`:
+
+```bash
+npx skills add docugenius/skills@docugenius -g -y
+```
+
+This installs the `docugenius` skill from this repository.
+
 ## Core concept
 
 The publishing workflow is:
